@@ -371,8 +371,6 @@
                 .single();
 
             if (error) throw error;
-
-            // data.points will be the number 4258029908 from your screenshot
             if (data && String(data.points) === String(userPasscode)) {
                 alert("Access granted");
                 // Page stays open
