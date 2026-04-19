@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards Dashboard</title>
+    <style>
+        /* General Reset & Variables */
+        :root {
+            --aiden-primary: #3498db;
+            --aiden-bg: #ebf5fb;
+            --ethan-primary: #e74c3c;
+            --ethan-bg: #fdedec;
+            --dark-navy: #2c3e50;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Fixed Header Styling */
+        header {
+            background-color: var(--dark-navy);
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #name { 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            letter-spacing: -1px;
+            text-transform: uppercase;
+        }
+
+        #admin a {
+            color: #bdc3c7;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+
+        #admin a:hover { color: white; }
+
+        /* Container Layout */
+        .reward-container {
+            max-width: 1000px;
+            margin: 4rem auto;
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0 1.5rem;
+        }
+
+        /* Base Card Styling */
+        .reward-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            width: 500px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .reward-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.12);
+        }
+
+        .reward-card h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        /* Points Display */
+        .points-display {
+            display: block;
+            margin: 1rem 0;
+            font-weight: 800;
+            font-size: 1.7rem;
+            padding: 0.5rem;
+            border-radius: 10px;
+        }
+
+        /* Inputs and Buttons */
+        input[type="number"] {
+            margin-top: 1.5rem;
+            padding: 0.8rem;
+            width: 100%;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+            text-align: center;
+        }
+
+        /* Shared Button Styles */
+        .update-button, .clear-button {
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            width: 100%;
+            color: rgb(255, 255, 255);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .update-button:active, .clear-button:active { 
+            transform: scale(0.96); 
+        }
+
+        .update-button:hover {
+            opacity: 1;
+            filter: brightness(1.3);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        .clear-button:hover {
+            opacity: 1;
+            filter: brightness(0.5);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        /* AIDEN THEME (BLUE) */
+        #card-Aiden { border-top: 8px solid var(--aiden-primary); }
+        #card-Aiden h2 { color: var(--aiden-primary); }
+        #card-Aiden .points-display { background-color: var(--aiden-bg); color: var(--aiden-primary); }
+        #input-Aiden:focus { border-color: var(--aiden-primary); }
+        #button-Aiden { background-color: var(--aiden-primary); box-shadow: 0 4px 14px rgba(52, 152, 219, 0.2); }
+        #clear-Aiden { background-color: white; box-shadow: 0 4px 14px rgba(52, 152, 219, 0.2); border: 1px solid rgba(52, 152, 219, 0.2); color: var(--aiden-primary); }
+        /* ETHAN THEME (RED) */
+        #card-Ethan { border-top: 8px solid var(--ethan-primary); }
+        #card-Ethan h2 { color: var(--ethan-primary); }
+        #card-Ethan .points-display { background-color: var(--ethan-bg); color: var(--ethan-primary); }
+        #input-Ethan:focus { border-color: var(--ethan-primary); }
+        #button-Ethan { background-color: var(--ethan-primary); box-shadow: 0 4px 14px rgba(231, 76, 60, 0.2); }
+        #clear-Ethan { background-color: white; box-shadow: 0 4px 14px rgba(231, 76, 60, 0.2); border: 1px solid rgba(231, 76, 60, 0.2); color: var(--ethan-primary); }
+        /* Note Input Styling */
+        .note-input {
+            margin-top: 10px;
+            padding: 0.5rem;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+
+        /* Log Card Specifics */
+        .log-card {
+            width: 400px !important; /* Smaller width for side logs */
+            max-height: 500px;
+            padding: 1.5rem 1rem !important;
+        }
+
+        .log-list {
+            text-align: left;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            overflow-y: auto;
+            max-height: 350px;
+            list-style: none;
+        }
+
+        /* Aiden Log Theme */
+        #card-Log-Aiden { border-top: 6px solid var(--aiden-primary); background-color: #fafcfe; }
+        #log-list-Aiden .log-item { border-bottom: 1px solid #d6eaf8; padding: 8px 0; }
+
+        /* Ethan Log Theme */
+        #card-Log-Ethan { border-top: 6px solid var(--ethan-primary); background-color: #fefafa; }
+        #log-list-Ethan .log-item { border-bottom: 1px solid #fadbd8; padding: 8px 0; }
+
+        .log-item span {
+            font-weight: bold;
+            color: #999;
+            display: block;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .reward-container { margin: 2rem auto; }
+            .reward-card { width: 100%; }
+        }
+    </style>        
+</head>
+<body>
+
+    <header>
+        <div id="name">Rewards System</div>
+        <div id="admin"><a href="index.html">Viewing Dashboard →</a></div>
+    </header>
+
+    <main>
+        <div class="reward-container">
+            <div class="reward-card log-card" id="card-Log-Aiden">
+                <h2 style="font-size: 1.5rem;">Aiden's History</h2>
+                <ul id="log-list-Aiden" class="log-list">
+                    <li class="log-item">Loading logs...</li>
+                </ul>
+            </div>
+
+            <div class="reward-card" id="card-Aiden">
+                <h2>Aiden</h2>
+                <span class="points-display">Loading...</span>
+                <input type="number" id="input-Aiden" placeholder="Points" class="input-Aiden">
+                <input type="text" id="note-Aiden" placeholder="Note (optional)" class="note-input">
+                <button id="button-Aiden" onclick="addPoints('Aiden')" class="update-button">Add Points</button>
+                <button id="clear-Aiden" onclick="clearPoints('Aiden')" class="clear-button">Clear Points</button>
+            </div>
+
+            <div class="reward-card" id="card-Ethan">
+                <h2>Ethan</h2>
+                <span class="points-display">Loading...</span>
+                <input type="number" id="input-Ethan" placeholder="Points" class="input-Ethan">
+                <input type="text" id="note-Ethan" placeholder="Note (optional)" class="note-input">
+                <button id="button-Ethan" onclick="addPoints('Ethan')" class="update-button">Add Points</button>
+                <button id="clear-Ethan" onclick="clearPoints('Ethan')" class="clear-button">Clear Points</button>
+            </div>
+
+            <div class="reward-card log-card" id="card-Log-Ethan">
+                <h2 style="font-size: 1.5rem;">Ethan's History</h2>
+                <ul id="log-list-Ethan" class="log-list">
+                    <li class="log-item">Loading logs...</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const dbUrl = 'https://qzejeiqedkgmhmovaxka.supabase.co';
+    const dbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6ZWplaXFlZGtnbWhtb3ZheGthIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjUxMzg1NCwiZXhwIjoyMDkyMDg5ODU0fQ.ZxdxljROoVY1qJXmP-fc6dkRc3Yushvm8vBLhQzBEmw'; 
+    
+    const { createClient } = window.supabase;
+    const db = createClient(dbUrl, dbKey);
+
+    async function updatePoints() {
+        try {
+            const { data, error } = await db.from('Rewards').select('name, points');
+            if (error) throw error;
+            if (data) {
+                data.forEach(user => {
+                    const card = document.querySelector(`#card-${user.name} .points-display`);
+                    if (card) {
+                        card.textContent = `${user.points} PTS`;
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Error:', err.message);
+            document.querySelectorAll('.points-display').forEach(el => el.textContent = "Error");
+        }
+    }
+
+    updatePoints();
+
+
+    async function fetchLogs(targetName) {
+        const logList = document.getElementById(`log-list-${targetName}`);
+        
+        try {
+            const { data, error } = await db
+                .from('Logs')
+                .select('*')
+                .eq('target_name', targetName) // Filters logs by Aiden or Ethan
+                .order('created_at', { ascending: false })
+                .limit(8);
+
+            if (error) throw error;
+
+            if (data.length === 0) {
+                logList.innerHTML = '<li class="log-item">No history yet.</li>';
+                return;
+            }
+
+            logList.innerHTML = data.map(log => `
+                <li class="log-item">
+                    <span>${new Date(log.created_at).toLocaleDateString()} ${new Date(log.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    ${log.action}
+                </li>
+            `).join('');
+
+        } catch (err) {
+            logList.innerHTML = '<li class="log-item">Error loading logs.</li>';
+        }
+    }
+
+    // 2. Updated addPoints to log to the specific user
+    async function addPoints(name) {
+        const input = document.getElementById(`input-${name}`);
+        const noteInput = document.getElementById(`note-${name}`);
+        const pointsToAdd = parseInt(input.value);
+        const userNote = noteInput.value.trim();
+        
+        if (isNaN(pointsToAdd)) return;
+
+        try {
+            const { data: user, error: fetchError } = await db
+                .from('Rewards')
+                .select('points')
+                .eq('name', name)
+                .single();
+
+            if (fetchError) throw fetchError;
+            const newPoints = user.points + pointsToAdd;
+
+            const { error: updateError } = await db
+                .from('Rewards')
+                .update({ points: newPoints })
+                .eq('name', name);
+
+            if (updateError) throw updateError;
+
+            // Log the action including a "target_name" column
+            let logAction = `+${pointsToAdd} pts. ${userNote ? `("${userNote}")` : ''}`;
+
+            await db.from('Logs').insert([
+                { 
+                    action: logAction, 
+                    target_name: name // Make sure this column exists in your 'Logs' table!
+                }
+            ]);
+
+            updatePoints();
+            fetchLogs(name); // Only refresh the log for the person updated
+            input.value = '';
+            noteInput.value = '';
+
+        } catch (err) {
+            alert("Action failed: " + err.message);
+        }
+    }
+
+// Initial Load for both
+    updatePoints();
+    fetchLogs('Aiden');
+    fetchLogs('Ethan');
+
+    async function checkPasscode() {
+        const userPasscode = prompt("Enter admin passcode:");
+        
+        try {
+            // We look for the row where the 'name' column is exactly 'Passcode'
+            const { data, error } = await db
+                .from('Rewards')
+                .select('points') // The number is in the points column
+                .eq('name', 'Passcode')
+                .single();
+
+            if (error) throw error;
+
+            // data.points will be the number 4258029908 from your screenshot
+            if (data && String(data.points) === String(userPasscode)) {
+                alert("Access granted");
+                // Page stays open
+            } else {
+                alert("Incorrect passcode. Redirecting...");
+                window.location.href = "index.html";
+            }
+        } catch (err) {
+            console.error('Security Error:', err.message);
+            alert("Verification failed. Make sure the 'Passcode' row exists in your database.");
+            window.location.href = "index.html";
+        }
+    }
+
+    checkPasscode();
+
+    function clearPoints(name) {
+        if (!confirm(`Are you sure you want to clear all points for ${name}? This action cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            db.from('Rewards')
+                .update({ points: 0 })
+                .eq('name', name)
+                .then(({ error }) => {
+                    if (error) throw error;
+                    updatePoints();
+                    fetchLogs(name); // Refresh logs to show the clearing action
+                });
+            db.from('Logs').insert([
+                { 
+                    action: `Cleared all points for ${name}.`, 
+                    target_name: name 
+                }
+            ]);
+        } catch (err) {
+            alert("Failed to clear points: " + err.message);
+        }
+    }
+
+    updatePoints();
+    fetchLogs('Aiden');
+    fetchLogs('Ethan');
+
+
+</script>
+</body>
+</html>

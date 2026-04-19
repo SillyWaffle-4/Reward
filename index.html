@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards</title>
+    <style>
+        /* General Reset & Variables */
+        :root {
+            --aiden-blue: #3498db;
+            --aiden-bg: #ebf5fb;
+            --ethan-red: #e74c3c;
+            --ethan-bg: #fdedec;
+            --dark-navy: #2c3e50;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background-color: #f8fafb;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Fixed Header Styling */
+        header {
+            background-color: var(--dark-navy);
+            color: white;
+            padding: 1.2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        #name { 
+            font-size: 1.6rem; 
+            font-weight: 800; 
+            letter-spacing: -0.5px;
+        }
+
+        #admin a {
+            color: #bdc3c7;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        #admin a:hover { color: white; }
+
+        /* Container Layout */
+        .reward-container {
+            max-width: 1000px;
+            margin: 5rem auto;
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0 1.5rem;
+        }
+
+        /* Card Styling */
+        .reward-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .reward-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .points-display {
+            display: inline-block;
+            margin-top: 15px;
+            font-weight: 700;
+            font-size: 1.4rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        /* Loading Animation */
+        .points-display:empty:before,
+        .points-display:contains('Loading...') {
+            opacity: 0.6;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.4; }
+        }
+
+        /* AIDEN SPECIFIC (BLUE) */
+        #card-Aiden { border-top: 10px solid var(--aiden-blue); }
+        #card-Aiden h2 { color: var(--aiden-blue); }
+        #card-Aiden .points-display { 
+            background-color: var(--aiden-bg); 
+            color: var(--aiden-blue); 
+        }
+
+        /* ETHAN SPECIFIC (RED) */
+        #card-Ethan { border-top: 10px solid var(--ethan-red); }
+        #card-Ethan h2 { color: var(--ethan-red); }
+        #card-Ethan .points-display { 
+            background-color: var(--ethan-bg); 
+            color: var(--ethan-red); 
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .reward-container { margin: 2rem auto; }
+            .reward-card { width: 100%; }
+        }
+    </style>        
+</head>
+<body>
+
+    <header>
+        <div id="name">REWARDS SYSTEM</div>
+        <div id="admin"><a href="admin.html">Admin Dashboard →</a></div>
+    </header>
+
+    <main>
+        <div class="reward-container">
+            <div class="reward-card" id="card-Aiden">
+                <h2>Aiden</h2>
+                <span class="points-display">Loading...</span>
+            </div>
+            
+            <div class="reward-card" id="card-Ethan">
+                <h2>Ethan</h2>
+                <span class="points-display">Loading...</span>
+            </div>
+        </div>
+    </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const dbUrl = 'https://qzejeiqedkgmhmovaxka.supabase.co';
+    const dbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6ZWplaXFlZGtnbWhtb3ZheGthIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjUxMzg1NCwiZXhwIjoyMDkyMDg5ODU0fQ.ZxdxljROoVY1qJXmP-fc6dkRc3Yushvm8vBLhQzBEmw'; 
+    
+    const { createClient } = window.supabase;
+    const db = createClient(dbUrl, dbKey);
+
+    async function updatePoints() {
+        try {
+            const { data, error } = await db
+                .from('Rewards')
+                .select('name, points');
+
+            if (error) throw error;
+
+            if (data) {
+                data.forEach(user => {
+                    const card = document.querySelector(`#card-${user.name} .points-display`);
+                    if (card) {
+                        card.textContent = `${user.points} Points`;
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Error fetching data:', err.message);
+            document.querySelectorAll('.points-display').forEach(el => el.textContent = "Offline");
+        }
+    }
+
+    updatePoints();
+</script>
+</body>
+</html>
